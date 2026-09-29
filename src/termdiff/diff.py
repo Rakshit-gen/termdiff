@@ -81,3 +81,18 @@ def diff_paragraphs(old: list[str], new: list[str]) -> list[Change]:
         elif op == "replace":
             changes += _pair_up(old[i1:i2], new[j1:j2])
     return [c for c in changes if not is_cosmetic(c)]
+
+
+def word_diff(old: str, new: str) -> str:
+    """Show an edit inline, git style: [-removed words-]{+added words+}."""
+    a, b = old.split(), new.split()
+    out = []
+    for op, i1, i2, j1, j2 in SequenceMatcher(None, a, b, autojunk=False).get_opcodes():
+        if op == "equal":
+            out.append(" ".join(a[i1:i2]))
+            continue
+        if i2 > i1:
+            out.append("[-" + " ".join(a[i1:i2]) + "-]")
+        if j2 > j1:
+            out.append("{+" + " ".join(b[j1:j2]) + "+}")
+    return " ".join(out)
