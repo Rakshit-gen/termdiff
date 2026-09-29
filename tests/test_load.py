@@ -42,3 +42,8 @@ def test_byte_order_mark_is_dropped(tmp_path):
 def test_table_cells_stay_apart():
     html = "<table><tr><td>Plus plan</td><td>$4 a month</td></tr></table>"
     assert html_to_text(html).strip() == "Plus plan | $4 a month |"
+
+
+def test_page_title_is_not_part_of_the_text():
+    html = "<html><head><title>Terms | Shelfspace</title></head><body><p>Hi</p></body></html>"
+    assert html_to_text(html).strip() == "Hi"

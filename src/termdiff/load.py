@@ -7,7 +7,9 @@ from pathlib import Path
 # Tags that end a paragraph. Their closing tag becomes a blank line.
 BLOCK_TAGS = {"p", "div", "li", "h1", "h2", "h3", "h4", "h5", "h6", "section", "tr", "br"}
 CELL_TAGS = {"td", "th"}
-SKIP_TAGS = {"script", "style", "nav", "header", "footer", "noscript"}
+# head holds the page title and metadata, which are not part of the terms and
+# were being glued onto the first paragraph.
+SKIP_TAGS = {"head", "script", "style", "nav", "header", "footer", "noscript"}
 
 
 class _TextExtractor(HTMLParser):
