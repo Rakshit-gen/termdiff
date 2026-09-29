@@ -1,0 +1,15 @@
+[project]
+name = "termdiff"
+version = "0.1.0"
+description = "See what changed between two versions of a terms of service, and which changes matter"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = []
+
+[project.scripts]
+termdiff = "termdiff.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
