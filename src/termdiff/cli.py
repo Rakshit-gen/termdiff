@@ -16,6 +16,13 @@ def main(argv: list[str] | None = None, model=None) -> int:
     parser.add_argument("new", help="new version (.txt, .md or .html)")
     parser.add_argument("--no-llm", action="store_true", help="list changes without review")
     parser.add_argument("--json", action="store_true", help="print JSON instead of Markdown")
+    parser.add_argument(
+        "--min-severity",
+        type=int,
+        choices=[1, 2, 3],
+        default=1,
+        help="hide reviewed changes below this severity (unreviewed ones are always shown)",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -42,7 +49,11 @@ def main(argv: list[str] | None = None, model=None) -> int:
 
         model = groq_model()
 
-    reviewed = review(changes, model)
+    reviewed = [
+        r
+        for r in review(changes, model)
+        if r.assessment is None or r.assessment.severity >= args.min_severity
+    ]
     sys.stdout.write(to_json(reviewed) if args.json else render(reviewed))
     return 0
 
