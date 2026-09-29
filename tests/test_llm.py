@@ -42,6 +42,7 @@ def test_out_of_range_severity_is_retried_then_dropped():
     (r,) = review([FEE_CHANGE], model, max_concurrency=1)
     assert r.assessment is None
     assert r.change is FEE_CHANGE
+    assert r.error.startswith("OutputParserException")
 
 
 def test_quote_found_ignores_case_quotes_and_trailing_period():

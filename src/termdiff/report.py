@@ -32,7 +32,11 @@ def render(reviewed: list[Reviewed]) -> str:
     for r in sorted(reviewed, key=_sort_key):
         a = r.assessment
         if a is None:
-            lines.append("## Not reviewed (the model output could not be read)")
+            lines.append("## Not reviewed")
+            lines.append("")
+            # First line only: API errors can carry long bodies.
+            reason = (r.error or "unknown error").splitlines()[0][:200]
+            lines.append(f"The model call failed: {reason}")
         else:
             lines.append(f"## [{a.severity}] {a.topic}: {IMPACT_LABEL[a.impact]}")
             lines.append("")
@@ -52,5 +56,7 @@ def to_json(reviewed: list[Reviewed]) -> str:
         if r.assessment is not None:
             item |= r.assessment.model_dump()
             item["quote_found"] = r.quote_found
+        else:
+            item["error"] = r.error
         items.append(item)
     return json.dumps(items, indent=2, ensure_ascii=False) + "\n"

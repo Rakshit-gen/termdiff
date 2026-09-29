@@ -71,7 +71,8 @@ def build_chain(model: BaseChatModel) -> Runnable:
 @dataclass
 class Reviewed:
     change: Change
-    assessment: Assessment | None  # None when the model output could not be parsed
+    assessment: Assessment | None  # None when the call failed or the output was unreadable
+    error: str | None = None
 
     @property
     def quote_found(self) -> bool:
@@ -94,7 +95,9 @@ def review(changes: list[Change], model: BaseChatModel, max_concurrency: int = 4
         inputs, config={"max_concurrency": max_concurrency}, return_exceptions=True
     )
     return [
-        Reviewed(c, r if isinstance(r, Assessment) else None)
+        Reviewed(c, r)
+        if isinstance(r, Assessment)
+        else Reviewed(c, None, f"{type(r).__name__}: {r}")
         for c, r in zip(changes, results, strict=True)
     ]
 

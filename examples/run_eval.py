@@ -39,7 +39,7 @@ def main() -> int:
         a = r.assessment
         problems = []
         if a is None:
-            problems.append("no assessment")
+            problems.append(f"no assessment ({(r.error or '').splitlines()[0][:80]})")
         else:
             if a.topic not in label["topics"]:
                 problems.append(f"topic {a.topic}")

@@ -43,9 +43,12 @@ def test_unverified_quote_is_flagged():
 
 
 def test_unreadable_output_is_listed_not_hidden():
-    r = Reviewed(Change("removed", "You can sue us.", ""), None)
+    r = Reviewed(
+        Change("removed", "You can sue us.", ""), None, "RateLimitError: 429 slow down\nbody"
+    )
     out = render([r])
     assert "Not reviewed" in out
+    assert "The model call failed: RateLimitError: 429 slow down\n" in out
     assert "Removed: You can sue us." in out
 
 
@@ -62,5 +65,5 @@ def test_json_output_includes_assessment_and_quote_check():
 
 
 def test_json_output_for_unreviewed_change_has_no_assessment():
-    (item,) = json.loads(to_json([Reviewed(Change("removed", "x", ""), None)]))
-    assert item == {"kind": "removed", "old": "x", "new": ""}
+    (item,) = json.loads(to_json([Reviewed(Change("removed", "x", ""), None, "boom")]))
+    assert item == {"kind": "removed", "old": "x", "new": "", "error": "boom"}
