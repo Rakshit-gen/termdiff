@@ -47,3 +47,9 @@ def test_table_cells_stay_apart():
 def test_page_title_is_not_part_of_the_text():
     html = "<html><head><title>Terms | Shelfspace</title></head><body><p>Hi</p></body></html>"
     assert html_to_text(html).strip() == "Hi"
+
+
+def test_br_and_self_closing_br_give_the_same_text():
+    a = html_to_text("<p>Line one<br>line two</p><p>Next</p>")
+    b = html_to_text("<p>Line one<br/>line two</p><p>Next</p>")
+    assert a == b

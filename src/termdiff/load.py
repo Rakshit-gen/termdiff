@@ -5,7 +5,9 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 # Tags that end a paragraph. Their closing tag becomes a blank line.
-BLOCK_TAGS = {"p", "div", "li", "h1", "h2", "h3", "h4", "h5", "h6", "section", "tr", "br"}
+# br is not here: it is a line break inside a paragraph, handled in handle_starttag.
+# Listing it made "<br/>" end a paragraph while "<br>" did not.
+BLOCK_TAGS = {"p", "div", "li", "h1", "h2", "h3", "h4", "h5", "h6", "section", "tr"}
 CELL_TAGS = {"td", "th"}
 # head holds the page title and metadata, which are not part of the terms and
 # were being glued onto the first paragraph.
