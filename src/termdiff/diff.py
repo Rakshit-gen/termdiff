@@ -65,7 +65,11 @@ COSMETIC = str.maketrans(
 
 # "12.", "4.2", "(b)" and similar at the start of a paragraph. Inserting a section
 # renumbers every heading after it, which is not a change in meaning.
-CLAUSE_NUMBER_RE = re.compile(r"^\s*(?:\d+(?:\.\d+)*\.?|\(?[a-z]\))\s+")
+#
+# A bare number is not a clause number: "30 days notice" must not become "days
+# notice", or a change from 30 to 7 days would be dropped as cosmetic. So the
+# number needs a trailing dot ("12.") or an inner one ("4.2").
+CLAUSE_NUMBER_RE = re.compile(r"^\s*(?:\d+\.(?:\d+\.?)*|\(?[a-z]\))\s+")
 
 
 def normalize(p: str) -> str:

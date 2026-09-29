@@ -79,3 +79,9 @@ def test_changes_come_out_in_document_order():
         "Plans renew automatically.",
         "Photos are ours.",
     ]
+
+
+def test_a_changed_number_at_the_start_of_a_paragraph_is_a_real_change():
+    old = ["30 days notice is required before any price change."]
+    new = ["7 days notice is required before any price change."]
+    assert [c.kind for c in diff_paragraphs(old, new)] == ["modified"]
