@@ -89,8 +89,12 @@ accuracy on real, long legal documents.
 
 Known limits:
 
-- Paragraphs are split on blank lines. A document that uses single line breaks
-  between clauses will be treated as one big paragraph.
+- Paragraphs are split on blank lines, or on single line breaks when the
+  document has no blank lines at all. A document that mixes both, with single
+  breaks between some clauses, will still join those clauses.
+- A paragraph that starts with a decimal, like "3.5 GB of storage", looks the
+  same as clause 3.5. If only that number changes, the edit is dropped as
+  renumbering.
 - Pairing inside a rewritten stretch compares every old paragraph with every
   new one. A full rewrite of a very long document will be slow.
 - One eval run had every review fail. The cause was not recorded because
