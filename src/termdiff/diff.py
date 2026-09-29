@@ -53,7 +53,22 @@ def _pair_up(olds: list[str], news: list[str]) -> list[Change]:
     return changes
 
 
+# Typographic swaps that editors and CMSes make without changing meaning.
+COSMETIC = str.maketrans(
+    {"\u2018": "'", "\u2019": "'", "\u201c": '"', "\u201d": '"', "\u2013": "-", "\u2014": "-"}
+)
+
+
+def normalize(p: str) -> str:
+    return " ".join(p.translate(COSMETIC).lower().split())
+
+
+def is_cosmetic(change: Change) -> bool:
+    return change.kind == "modified" and normalize(change.old) == normalize(change.new)
+
+
 def diff_paragraphs(old: list[str], new: list[str]) -> list[Change]:
+    """Changed paragraphs, oldest position first. Quote, dash and case edits are dropped."""
     changes = []
     matcher = SequenceMatcher(None, old, new, autojunk=False)
     for op, i1, i2, j1, j2 in matcher.get_opcodes():
@@ -63,4 +78,4 @@ def diff_paragraphs(old: list[str], new: list[str]) -> list[Change]:
             changes += [Change("added", "", p) for p in new[j1:j2]]
         elif op == "replace":
             changes += _pair_up(old[i1:i2], new[j1:j2])
-    return changes
+    return [c for c in changes if not is_cosmetic(c)]
