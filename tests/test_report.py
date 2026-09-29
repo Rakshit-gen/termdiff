@@ -1,6 +1,8 @@
+import json
+
 from termdiff.diff import Change
 from termdiff.llm import Assessment, Reviewed
-from termdiff.report import render
+from termdiff.report import render, to_json
 
 
 def reviewed(kind, old, new, **a):
@@ -49,3 +51,16 @@ def test_unreadable_output_is_listed_not_hidden():
 
 def test_no_changes():
     assert render([]) == "No changes found.\n"
+
+
+def test_json_output_includes_assessment_and_quote_check():
+    r = reviewed("added", "", "Disputes go to arbitration.", topic="disputes", quote="arbitration")
+    (item,) = json.loads(to_json([r]))
+    assert item["kind"] == "added"
+    assert item["topic"] == "disputes"
+    assert item["quote_found"] is True
+
+
+def test_json_output_for_unreviewed_change_has_no_assessment():
+    (item,) = json.loads(to_json([Reviewed(Change("removed", "x", ""), None)]))
+    assert item == {"kind": "removed", "old": "x", "new": ""}
