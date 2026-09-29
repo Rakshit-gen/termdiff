@@ -24,7 +24,9 @@ PAIR_THRESHOLD = 0.5
 
 
 def _similar(a: str, b: str) -> float:
-    return SequenceMatcher(None, a, b, autojunk=False).ratio()
+    # Compare normalized text so "GOVERNING LAW" and "Governing law" pair up and are
+    # then dropped as cosmetic, instead of showing as a removal plus an addition.
+    return SequenceMatcher(None, normalize(a), normalize(b), autojunk=False).ratio()
 
 
 def _pair_up(olds: list[str], news: list[str]) -> list[Change]:

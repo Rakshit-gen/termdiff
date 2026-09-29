@@ -28,3 +28,19 @@ def test_added_removed_and_modified():
 def test_unrelated_replacement_is_not_paired():
     changes = diff_paragraphs(["Cookies help us."], ["You waive class actions entirely."])
     assert [c.kind for c in changes] == ["removed", "added"]
+
+
+def test_typographic_edits_are_not_changes():
+    old = ['We "may" end your account - at any time.']
+    new = ["We \u201cmay\u201d end your account \u2014 at any time."]
+    assert diff_paragraphs(old, new) == []
+
+
+def test_case_only_edits_are_not_changes():
+    assert diff_paragraphs(["GOVERNING LAW"], ["Governing law"]) == []
+
+
+def test_real_edit_next_to_a_cosmetic_one_is_kept():
+    old = ["We “may” end your account with notice."]
+    new = ['We "may" end your account without notice.']
+    assert [c.kind for c in diff_paragraphs(old, new)] == ["modified"]
