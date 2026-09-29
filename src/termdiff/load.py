@@ -1,5 +1,6 @@
 """Load a document as plain text."""
 
+import re
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -28,7 +29,9 @@ class _TextExtractor(HTMLParser):
 
     def handle_data(self, data):
         if not self.skip_depth:
-            self.parts.append(" ".join(data.split()) + (" " if data[-1:].isspace() else ""))
+            # Collapse runs of whitespace but keep one space, so "<b>30 days</b> notice"
+            # does not turn into "30 daysnotice".
+            self.parts.append(re.sub(r"\s+", " ", data))
 
 
 def html_to_text(html: str) -> str:
