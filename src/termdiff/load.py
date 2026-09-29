@@ -6,6 +6,7 @@ from pathlib import Path
 
 # Tags that end a paragraph. Their closing tag becomes a blank line.
 BLOCK_TAGS = {"p", "div", "li", "h1", "h2", "h3", "h4", "h5", "h6", "section", "tr", "br"}
+CELL_TAGS = {"td", "th"}
 SKIP_TAGS = {"script", "style", "nav", "header", "footer", "noscript"}
 
 
@@ -26,6 +27,9 @@ class _TextExtractor(HTMLParser):
             self.skip_depth -= 1
         elif tag in BLOCK_TAGS:
             self.parts.append("\n\n")
+        elif tag in CELL_TAGS:
+            # Keep cells in a row apart: "<td>Plus</td><td>$4</td>" was "Plus$4".
+            self.parts.append(" | ")
 
     def handle_data(self, data):
         if not self.skip_depth:

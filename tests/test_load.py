@@ -37,3 +37,8 @@ def test_byte_order_mark_is_dropped(tmp_path):
     p = tmp_path / "terms.txt"
     p.write_bytes(b"\xef\xbb\xbfFees are $5.")
     assert load_text(p) == "Fees are $5."
+
+
+def test_table_cells_stay_apart():
+    html = "<table><tr><td>Plus plan</td><td>$4 a month</td></tr></table>"
+    assert html_to_text(html).strip() == "Plus plan | $4 a month |"
