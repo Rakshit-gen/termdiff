@@ -56,3 +56,9 @@ def test_word_diff_marks_replacements_and_insertions():
 
 def test_word_diff_of_identical_text_is_the_text():
     assert word_diff("same words", "same words") == "same words"
+
+
+def test_renumbered_headings_are_not_changes():
+    old = ["5. Your photos", "6. Privacy", "(a) Cookies"]
+    new = ["6. Your photos", "7. Privacy", "(b) Cookies"]
+    assert diff_paragraphs(old, new) == []

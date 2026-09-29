@@ -61,8 +61,14 @@ COSMETIC = str.maketrans(
 )
 
 
+# "12.", "4.2", "(b)" and similar at the start of a paragraph. Inserting a section
+# renumbers every heading after it, which is not a change in meaning.
+CLAUSE_NUMBER_RE = re.compile(r"^\s*(?:\d+(?:\.\d+)*\.?|\(?[a-z]\))\s+")
+
+
 def normalize(p: str) -> str:
-    return " ".join(p.translate(COSMETIC).lower().split())
+    p = CLAUSE_NUMBER_RE.sub("", p.translate(COSMETIC).lower())
+    return " ".join(p.split())
 
 
 def is_cosmetic(change: Change) -> bool:
