@@ -31,3 +31,9 @@ def test_html_files_are_detected_by_extension(tmp_path):
     p = tmp_path / "terms.html"
     p.write_text("<p>Hello</p>")
     assert load_text(p).strip() == "Hello"
+
+
+def test_byte_order_mark_is_dropped(tmp_path):
+    p = tmp_path / "terms.txt"
+    p.write_bytes(b"\xef\xbb\xbfFees are $5.")
+    assert load_text(p) == "Fees are $5."

@@ -43,7 +43,9 @@ def html_to_text(html: str) -> str:
 
 def load_text(path: str | Path) -> str:
     path = Path(path)
-    raw = path.read_text(encoding="utf-8", errors="replace")
+    # utf-8-sig drops a byte order mark. Without it, the same text saved by an editor
+    # that adds one showed up as a change to the first paragraph.
+    raw = path.read_text(encoding="utf-8-sig", errors="replace")
     raw = raw.replace("\r\n", "\n").replace("\r", "\n")
     if path.suffix.lower() in {".html", ".htm"}:
         return html_to_text(raw)
