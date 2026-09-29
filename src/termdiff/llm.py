@@ -1,6 +1,7 @@
 """Classify each change with a chat model through LangChain."""
 
 import os
+import re
 from dataclasses import dataclass
 from typing import Literal
 
@@ -83,9 +84,12 @@ class Reviewed:
         """
         if self.assessment is None:
             return False
-        quote = normalize(self.assessment.quote).strip(" .\"'")
         text = normalize(self.change.old + " " + self.change.new)
-        return bool(quote) and quote in text
+        # Models shorten long quotes with "..." so check each piece on its own.
+        pieces = re.split(r"\.\.\.|\u2026", self.assessment.quote)
+        pieces = [normalize(p).strip(" .,;:\"'") for p in pieces]
+        pieces = [p for p in pieces if p]
+        return bool(pieces) and all(p in text for p in pieces)
 
 
 def review(changes: list[Change], model: BaseChatModel, max_concurrency: int = 4) -> list[Reviewed]:

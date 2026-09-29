@@ -61,3 +61,22 @@ def test_empty_quote_is_not_found():
     model = FakeListChatModel(responses=[assessment(quote="  ")])
     (r,) = review([FEE_CHANGE], model, max_concurrency=1)
     assert not r.quote_found
+
+
+def test_quote_shortened_with_an_ellipsis_is_found():
+    change = Change(
+        "modified",
+        "We may close your account.",
+        "We may suspend or close your account at any time and without notice.",
+    )
+    for quote in ["We may suspend ... without notice.", "suspend or close…without notice"]:
+        model = FakeListChatModel(responses=[assessment(quote=quote)])
+        (r,) = review([change], model, max_concurrency=1)
+        assert r.quote_found, quote
+
+
+def test_ellipsis_pieces_must_each_be_in_the_text():
+    change = Change("added", "", "We may suspend your account.")
+    model = FakeListChatModel(responses=[assessment(quote="We may suspend ... and sell your data")])
+    (r,) = review([change], model, max_concurrency=1)
+    assert not r.quote_found
