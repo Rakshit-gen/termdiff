@@ -1,6 +1,7 @@
 """Command line entry point."""
 
 import argparse
+import json
 import sys
 
 from termdiff.diff import diff_paragraphs, paragraphs, word_diff
@@ -32,6 +33,11 @@ def main(argv: list[str] | None = None, model=None) -> int:
         return 1
 
     changes = diff_paragraphs(paragraphs(old), paragraphs(new))
+
+    if args.no_llm and args.json:
+        items = [{"kind": c.kind, "old": c.old, "new": c.new} for c in changes]
+        print(json.dumps(items, indent=2, ensure_ascii=False))
+        return 0
 
     if args.no_llm:
         for c in changes:

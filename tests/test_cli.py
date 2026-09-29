@@ -59,3 +59,10 @@ def test_min_severity_hides_small_changes(tmp_path, capsys, monkeypatch):
     out = capsys.readouterr().out
     assert "Fee up" in out
     assert "Cookie wording" not in out
+
+
+def test_no_llm_with_json_prints_json(tmp_path, capsys):
+    assert main([*write(tmp_path), "--no-llm", "--json"]) == 0
+    assert json.loads(capsys.readouterr().out) == [
+        {"kind": "modified", "old": "Fees are $5 a month.", "new": "Fees are $7 a month."}
+    ]
