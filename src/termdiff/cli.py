@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import sys
 
 from termdiff.diff import diff_paragraphs, paragraphs, word_diff
@@ -51,6 +52,13 @@ def main(argv: list[str] | None = None, model=None) -> int:
     from termdiff.report import render, to_json
 
     if model is None:
+        if not os.environ.get("GROQ_API_KEY"):
+            print(
+                "termdiff: GROQ_API_KEY is not set. Set it, or use --no-llm to list the "
+                "changes without a review.",
+                file=sys.stderr,
+            )
+            return 1
         from termdiff.llm import groq_model
 
         model = groq_model()

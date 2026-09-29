@@ -66,3 +66,9 @@ def test_no_llm_with_json_prints_json(tmp_path, capsys):
     assert json.loads(capsys.readouterr().out) == [
         {"kind": "modified", "old": "Fees are $5 a month.", "new": "Fees are $7 a month."}
     ]
+
+
+def test_missing_api_key_is_a_clear_error(tmp_path, capsys, monkeypatch):
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+    assert main([*write(tmp_path)]) == 1
+    assert "GROQ_API_KEY is not set" in capsys.readouterr().err
