@@ -1,4 +1,4 @@
-from termdiff.diff import Change, diff_paragraphs, paragraphs
+from termdiff.diff import Change, diff_paragraphs, paragraphs, word_diff
 
 
 def test_paragraphs_split_on_blank_lines_and_unwrap():
@@ -44,3 +44,15 @@ def test_real_edit_next_to_a_cosmetic_one_is_kept():
     old = ["We “may” end your account with notice."]
     new = ['We "may" end your account without notice.']
     assert [c.kind for c in diff_paragraphs(old, new)] == ["modified"]
+
+
+def test_word_diff_marks_replacements_and_insertions():
+    old = "We may end your account with 30 days notice."
+    new = "We may end your account at any time without notice."
+    assert word_diff(old, new) == (
+        "We may end your account [-with 30 days-] {+at any time without+} notice."
+    )
+
+
+def test_word_diff_of_identical_text_is_the_text():
+    assert word_diff("same words", "same words") == "same words"

@@ -84,7 +84,7 @@ def diff_paragraphs(old: list[str], new: list[str]) -> list[Change]:
 
 
 def word_diff(old: str, new: str) -> str:
-    """Show an edit inline, git style: [-removed words-]{+added words+}."""
+    """Show an edit inline, git style: [-removed words-] {+added words+}."""
     a, b = old.split(), new.split()
     out = []
     for op, i1, i2, j1, j2 in SequenceMatcher(None, a, b, autojunk=False).get_opcodes():
