@@ -1,8 +1,16 @@
 """Classify each change with a chat model through LangChain."""
 
+from dataclasses import dataclass
 from typing import Literal
 
+from langchain_core.exceptions import OutputParserException
+from langchain_core.language_models import BaseChatModel
+from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import Runnable
 from pydantic import BaseModel, Field
+
+from termdiff.diff import Change
 
 Topic = Literal[
     "fees",
@@ -47,3 +55,31 @@ OLD:
 
 NEW:
 {new}"""
+
+
+def build_chain(model: BaseChatModel) -> Runnable:
+    parser = PydanticOutputParser(pydantic_object=Assessment)
+    prompt = ChatPromptTemplate.from_messages(
+        [("system", SYSTEM_PROMPT), ("human", HUMAN_PROMPT)]
+    ).partial(format_instructions=parser.get_format_instructions())
+    return (prompt | model | parser).with_retry(
+        retry_if_exception_type=(OutputParserException,), stop_after_attempt=2
+    )
+
+
+@dataclass
+class Reviewed:
+    change: Change
+    assessment: Assessment | None  # None when the model output could not be parsed
+
+
+def review(changes: list[Change], model: BaseChatModel, max_concurrency: int = 4) -> list[Reviewed]:
+    """One model call per change, run in parallel. Failures are kept with no assessment."""
+    inputs = [{"kind": c.kind, "old": c.old or "(none)", "new": c.new or "(none)"} for c in changes]
+    results = build_chain(model).batch(
+        inputs, config={"max_concurrency": max_concurrency}, return_exceptions=True
+    )
+    return [
+        Reviewed(c, r if isinstance(r, Assessment) else None)
+        for c, r in zip(changes, results, strict=True)
+    ]
