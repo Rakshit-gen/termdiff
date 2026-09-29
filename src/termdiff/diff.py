@@ -6,8 +6,15 @@ from difflib import SequenceMatcher
 
 
 def paragraphs(text: str) -> list[str]:
-    """Split on blank lines and collapse whitespace inside each paragraph."""
-    blocks = re.split(r"\n\s*\n", text)
+    """Split on blank lines and collapse whitespace inside each paragraph.
+
+    A document with no blank lines at all is split on single line breaks
+    instead. Otherwise the whole document is one paragraph and any edit
+    shows up as a change to all of it.
+    """
+    blocks = re.split(r"\n\s*\n", text.strip())
+    if len(blocks) == 1:
+        blocks = text.split("\n")
     return [" ".join(b.split()) for b in blocks if b.strip()]
 
 

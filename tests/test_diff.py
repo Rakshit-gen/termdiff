@@ -85,3 +85,12 @@ def test_a_changed_number_at_the_start_of_a_paragraph_is_a_real_change():
     old = ["30 days notice is required before any price change."]
     new = ["7 days notice is required before any price change."]
     assert [c.kind for c in diff_paragraphs(old, new)] == ["modified"]
+
+
+def test_documents_without_blank_lines_split_on_line_breaks():
+    text = "Fees are $5.\nRefunds in 7 days.\nWe never sell data.\n"
+    assert paragraphs(text) == ["Fees are $5.", "Refunds in 7 days.", "We never sell data."]
+
+
+def test_wrapped_lines_are_joined_when_blank_lines_exist():
+    assert paragraphs("One\nwrapped\n\nTwo") == ["One wrapped", "Two"]
