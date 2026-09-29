@@ -1,5 +1,6 @@
 """Classify each change with a chat model through LangChain."""
 
+import os
 from dataclasses import dataclass
 from typing import Literal
 
@@ -96,3 +97,20 @@ def review(changes: list[Change], model: BaseChatModel, max_concurrency: int = 4
         Reviewed(c, r if isinstance(r, Assessment) else None)
         for c, r in zip(changes, results, strict=True)
     ]
+
+
+# Checked against Groq's model list on 2026-09-29. Override with TERMDIFF_MODEL.
+DEFAULT_MODEL = "openai/gpt-oss-120b"
+
+
+def groq_model() -> BaseChatModel:
+    from langchain_groq import ChatGroq
+
+    # gpt-oss reasons before answering and that counts against max_tokens, so keep
+    # reasoning short and leave room for the JSON.
+    return ChatGroq(
+        model=os.environ.get("TERMDIFF_MODEL", DEFAULT_MODEL),
+        temperature=0,
+        reasoning_effort="low",
+        max_tokens=4096,
+    )
