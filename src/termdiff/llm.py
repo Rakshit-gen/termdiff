@@ -10,7 +10,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 from pydantic import BaseModel, Field
 
-from termdiff.diff import Change
+from termdiff.diff import Change, normalize
 
 Topic = Literal[
     "fees",
@@ -71,6 +71,19 @@ def build_chain(model: BaseChatModel) -> Runnable:
 class Reviewed:
     change: Change
     assessment: Assessment | None  # None when the model output could not be parsed
+
+    @property
+    def quote_found(self) -> bool:
+        """True when the model's quote really appears in the changed text.
+
+        A quote that is not there means the summary may describe something the
+        document does not say, so the report flags it.
+        """
+        if self.assessment is None:
+            return False
+        quote = normalize(self.assessment.quote).strip(" .\"'")
+        text = normalize(self.change.old + " " + self.change.new)
+        return bool(quote) and quote in text
 
 
 def review(changes: list[Change], model: BaseChatModel, max_concurrency: int = 4) -> list[Reviewed]:
