@@ -45,14 +45,16 @@ def _pair_up(olds: list[str], news: list[str]) -> list[Change]:
         if i not in match and j not in used_new:
             match[i] = j
             used_new.add(j)
-    changes = []
+    # Keep document order: sort by position in the new version, placing a removed
+    # paragraph where it used to sit.
+    placed = []
     for i, o in enumerate(olds):
         if i in match:
-            changes.append(Change("modified", o, news[match[i]]))
+            placed.append((match[i], Change("modified", o, news[match[i]])))
         else:
-            changes.append(Change("removed", o, ""))
-    changes += [Change("added", "", n) for j, n in enumerate(news) if j not in used_new]
-    return changes
+            placed.append((i - 0.5, Change("removed", o, "")))
+    placed += [(j, Change("added", "", n)) for j, n in enumerate(news) if j not in used_new]
+    return [c for _, c in sorted(placed, key=lambda p: p[0])]
 
 
 # Typographic swaps that editors and CMSes make without changing meaning.

@@ -62,3 +62,20 @@ def test_renumbered_headings_are_not_changes():
     old = ["5. Your photos", "6. Privacy", "(a) Cookies"]
     new = ["6. Your photos", "7. Privacy", "(b) Cookies"]
     assert diff_paragraphs(old, new) == []
+
+
+def test_changes_come_out_in_document_order():
+    old = ["Fees are $4.", "Refunds within 7 days.", "Photos are yours."]
+    new = [
+        "Fees are $6.",
+        "Refunds within 30 days.",
+        "Plans renew automatically.",
+        "Photos are ours.",
+    ]
+    changes = diff_paragraphs(old, new)
+    assert [c.new for c in changes] == [
+        "Fees are $6.",
+        "Refunds within 30 days.",
+        "Plans renew automatically.",
+        "Photos are ours.",
+    ]
