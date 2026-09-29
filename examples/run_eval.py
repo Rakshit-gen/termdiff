@@ -35,7 +35,12 @@ def main() -> int:
     passed = 0
     for r in reviewed:
         text = r.change.old + " " + r.change.new
-        label = next(lb for lb in labels if lb["match"] in text)
+        label = next((lb for lb in labels if lb["match"] in text), None)
+        if label is None:
+            # Editing an example document without updating the labels used to crash
+            # here with a bare StopIteration.
+            print(f"no label matches this change, add one: {text.strip()[:80]!r}")
+            return 1
         a = r.assessment
         problems = []
         if a is None:
