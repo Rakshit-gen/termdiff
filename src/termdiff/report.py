@@ -1,4 +1,6 @@
-"""Write the review as Markdown."""
+"""Write the review as Markdown or JSON."""
+
+import json
 
 from termdiff.diff import word_diff
 from termdiff.llm import Reviewed
@@ -40,3 +42,15 @@ def render(reviewed: list[Reviewed]) -> str:
                 lines.append("> Check this one: the quoted words were not found in the change.")
         lines += ["", "```", _change_text(r), "```", ""]
     return "\n".join(lines).rstrip() + "\n"
+
+
+def to_json(reviewed: list[Reviewed]) -> str:
+    """Machine readable output, in the same order as the Markdown report."""
+    items = []
+    for r in sorted(reviewed, key=_sort_key):
+        item = {"kind": r.change.kind, "old": r.change.old, "new": r.change.new}
+        if r.assessment is not None:
+            item |= r.assessment.model_dump()
+            item["quote_found"] = r.quote_found
+        items.append(item)
+    return json.dumps(items, indent=2, ensure_ascii=False) + "\n"
