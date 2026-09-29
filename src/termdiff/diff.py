@@ -28,17 +28,28 @@ def _similar(a: str, b: str) -> float:
 
 
 def _pair_up(olds: list[str], news: list[str]) -> list[Change]:
+    """Pair each old paragraph with its most similar new one, best matches first."""
+    # ponytail: compares every pair, O(n*m). Fine for edited sections; a full rewrite of
+    # a very long document would want a cheaper first pass (for example word overlap).
+    scored = sorted(
+        ((_similar(o, n), i, j) for i, o in enumerate(olds) for j, n in enumerate(news)),
+        reverse=True,
+    )
+    match: dict[int, int] = {}
+    used_new: set[int] = set()
+    for score, i, j in scored:
+        if score < PAIR_THRESHOLD:
+            break
+        if i not in match and j not in used_new:
+            match[i] = j
+            used_new.add(j)
     changes = []
-    for i in range(max(len(olds), len(news))):
-        o = olds[i] if i < len(olds) else None
-        n = news[i] if i < len(news) else None
-        if o is not None and n is not None and _similar(o, n) >= PAIR_THRESHOLD:
-            changes.append(Change("modified", o, n))
-            continue
-        if o is not None:
+    for i, o in enumerate(olds):
+        if i in match:
+            changes.append(Change("modified", o, news[match[i]]))
+        else:
             changes.append(Change("removed", o, ""))
-        if n is not None:
-            changes.append(Change("added", "", n))
+    changes += [Change("added", "", n) for j, n in enumerate(news) if j not in used_new]
     return changes
 
 
