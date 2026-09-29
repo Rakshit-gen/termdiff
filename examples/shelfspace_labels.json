@@ -1,0 +1,12 @@
+[
+  {"match": "Last updated", "topics": ["other"], "impact": ["neutral"], "min_severity": 1},
+  {"match": "Basic plan is free up to", "topics": ["fees"], "impact": ["worse"], "min_severity": 3},
+  {"match": "refund within", "topics": ["fees", "other"], "impact": ["better"], "min_severity": 1},
+  {"match": "5. Plans renew automatically", "topics": ["auto_renewal"], "impact": ["worse", "neutral"], "min_severity": 1},
+  {"match": "renew automatically at the end", "topics": ["auto_renewal"], "impact": ["worse"], "min_severity": 2},
+  {"match": "royalty free license", "topics": ["content_license"], "impact": ["worse"], "min_severity": 2},
+  {"match": "advertising partners", "topics": ["data_sharing", "privacy"], "impact": ["worse"], "min_severity": 3},
+  {"match": "without notice", "topics": ["termination"], "impact": ["worse"], "min_severity": 3},
+  {"match": "limited to $50", "topics": ["liability"], "impact": ["worse"], "min_severity": 2},
+  {"match": "binding individual arbitration", "topics": ["disputes"], "impact": ["worse"], "min_severity": 3}
+]
