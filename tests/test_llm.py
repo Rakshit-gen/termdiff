@@ -42,3 +42,21 @@ def test_out_of_range_severity_is_retried_then_dropped():
     (r,) = review([FEE_CHANGE], model, max_concurrency=1)
     assert r.assessment is None
     assert r.change is FEE_CHANGE
+
+
+def test_quote_found_ignores_case_quotes_and_trailing_period():
+    model = FakeListChatModel(responses=[assessment(quote="“FEES ARE $7 a month.”")])
+    (r,) = review([FEE_CHANGE], model, max_concurrency=1)
+    assert r.quote_found
+
+
+def test_invented_quote_is_not_found():
+    model = FakeListChatModel(responses=[assessment(quote="no refunds ever")])
+    (r,) = review([FEE_CHANGE], model, max_concurrency=1)
+    assert not r.quote_found
+
+
+def test_empty_quote_is_not_found():
+    model = FakeListChatModel(responses=[assessment(quote="  ")])
+    (r,) = review([FEE_CHANGE], model, max_concurrency=1)
+    assert not r.quote_found
